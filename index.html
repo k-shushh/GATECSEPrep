@@ -1,0 +1,1008 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>Zero to GATE · Complete Offline Edition</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: lab-notebook study app. Fixed curriculum rail on the left, one reading column on the right,
+   graph-paper ground, highlighter-yellow for "remember this", cobalt for anything you can click. */
+:root{
+  --paper:#F4F6FB; --grid:rgba(46,85,230,.055); --surface:#FFFFFF; --surface-2:#EDF0F8; --surface-3:#E2E7F4;
+  --ink:#151A2D; --ink-2:#4B5373; --ink-3:#7C84A3; --line:#D8DDEB;
+  --accent:#2E55E6; --accent-ink:#FFFFFF; --accent-soft:#E2E9FE; --accent-line:#B7C7FA;
+  --marker:#FFE36B; --marker-ink:#3A2F00;
+  --ok:#11815B; --ok-soft:#DCF3E9; --bad:#C33A3A; --bad-soft:#FBE4E4; --warn:#9C5C07; --warn-soft:#FCEED6;
+  --violet:#7448D8; --violet-soft:#EEE7FD;
+  --code-bg:#121830; --code-line:#1D2544; --code-hl:#2A3A78; --code-ink:#E6E9F5; --code-dim:#6E7799;
+  --c-kw:#8FB0FF; --c-type:#6FD6C4; --c-str:#F2C37E; --c-num:#F79A72; --c-com:#7480A8; --c-pre:#CBA8FF; --c-fn:#9DE58C;
+  --shadow:0 1px 2px rgba(21,26,45,.06),0 6px 20px rgba(21,26,45,.06);
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,"Courier New",monospace;
+  --rail:292px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#0D111E; --grid:rgba(125,155,255,.05); --surface:#141A2B; --surface-2:#1A2136; --surface-3:#232B45;
+  --ink:#E8EBF6; --ink-2:#A7AECA; --ink-3:#737B99; --line:#2A3250;
+  --accent:#7F9CFF; --accent-ink:#0D111E; --accent-soft:#1D2750; --accent-line:#34448A;
+  --marker:#EFC94A; --marker-ink:#2A2000;
+  --ok:#4CC99B; --ok-soft:#12342A; --bad:#FF8080; --bad-soft:#3B1B21; --warn:#F0AA4E; --warn-soft:#382A13;
+  --violet:#B79BFF; --violet-soft:#2A2148;
+  --code-bg:#0A0E1B; --code-line:#161D35; --code-hl:#24346E;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#0D111E; --grid:rgba(125,155,255,.05); --surface:#141A2B; --surface-2:#1A2136; --surface-3:#232B45;
+  --ink:#E8EBF6; --ink-2:#A7AECA; --ink-3:#737B99; --line:#2A3250;
+  --accent:#7F9CFF; --accent-ink:#0D111E; --accent-soft:#1D2750; --accent-line:#34448A;
+  --marker:#EFC94A; --marker-ink:#2A2000;
+  --ok:#4CC99B; --ok-soft:#12342A; --bad:#FF8080; --bad-soft:#3B1B21; --warn:#F0AA4E; --warn-soft:#382A13;
+  --violet:#B79BFF; --violet-soft:#2A2148;
+  --code-bg:#0A0E1B; --code-line:#161D35; --code-hl:#24346E;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.62;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--surface)}
+a{color:var(--accent)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:6px}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0;letter-spacing:-.01em}
+code,kbd,.mono{font-family:var(--f-mono);font-size:.88em}
+p code,li code,td code,.q-text code{background:var(--surface-2);border:1px solid var(--line);padding:.05em .35em;border-radius:5px}
+mark,.hl{background:linear-gradient(transparent 12%,var(--marker) 12%,var(--marker) 88%,transparent 88%);color:var(--marker-ink);padding:0 .15em}
+
+/* ---------- Shell ---------- */
+.app{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:100%}
+.rail{position:sticky;top:env(safe-area-inset-top,0px);height:calc(100vh - env(safe-area-inset-top,0px));overflow-y:auto;
+  background:var(--surface);border-right:1px solid var(--line);padding:20px 14px 40px max(14px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;gap:10px;align-items:center;text-decoration:none;color:var(--ink);padding:4px 6px}
+.brand-mark{width:38px;height:38px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:15px;flex:none}
+.brand b{font-family:var(--f-display);font-size:18px;display:block;line-height:1.1}
+.brand small{color:var(--ink-3);font-size:12.5px}
+.overall{padding:12px;border-radius:12px;background:var(--surface-2);display:grid;gap:6px;font-size:13.5px;color:var(--ink-2)}
+.bar{height:7px;border-radius:9px;background:var(--surface-3);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:9px;transition:width .4s}
+.phase-label{font-size:11.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);font-weight:700;padding:0 8px;margin-bottom:4px}
+.nav-mod{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;padding:7px 8px;border-radius:9px;text-decoration:none;color:var(--ink-2);font-size:14.5px;line-height:1.3}
+.nav-mod:hover{background:var(--surface-2);color:var(--ink)}
+.nav-mod.on{background:var(--accent-soft);color:var(--ink)}
+.nav-mod .n{font-family:var(--f-mono);font-size:12px;color:var(--ink-3)}
+.nav-mod.on .n{color:var(--accent)}
+.nav-mod .pct{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3)}
+.nav-mod .pct.full{color:var(--ok)}
+.nav-mod.soon{opacity:.55}
+.nav-lessons{list-style:none;margin:2px 0 8px 38px;padding:0;border-left:1.5px solid var(--line)}
+.nav-lessons a{display:flex;gap:8px;align-items:baseline;padding:4px 10px;font-size:13.5px;color:var(--ink-2);text-decoration:none;line-height:1.3}
+.nav-lessons a:hover{color:var(--ink)}
+.nav-lessons a.on{color:var(--accent);font-weight:700}
+.nav-lessons .tick{width:14px;flex:none;color:var(--ok);font-size:12px}
+.main{min-width:0;padding-block:28px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.col{max-width:860px;margin:0 auto}
+.topbar{display:none}
+@media (max-width:980px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{position:fixed;z-index:50;inset:0 auto 0 0;width:min(320px,88vw);height:100%;transform:translateX(-102%);transition:transform .25s;box-shadow:var(--shadow);padding-top:calc(20px + env(safe-area-inset-top,0px))}
+  .rail.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(10,14,28,.45);z-index:45}
+  .topbar{display:flex;position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--surface);border-bottom:1px solid var(--line);
+    padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));align-items:center;gap:12px}
+  .topbar b{font-family:var(--f-display);font-size:16px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .main{padding-top:20px}
+}
+
+/* ---------- Generic UI ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 16px;border-radius:10px;cursor:pointer;font-weight:700;font-size:15px;text-decoration:none;line-height:1.2;transition:background .15s,border-color .15s,transform .1s}
+.btn:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.small{padding:6px 11px;font-size:13.5px;border-radius:8px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:3px 10px;border-radius:99px;background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line);white-space:nowrap}
+.chip.year{background:var(--violet-soft);color:var(--violet);border-color:transparent;font-weight:700}
+.chip.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent;font-weight:700}
+.eyebrow{font-size:12.5px;text-transform:uppercase;letter-spacing:.13em;font-weight:700;color:var(--accent)}
+.muted{color:var(--ink-2)}
+.field{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input[type=text],input[type=number],select{font:inherit;font-size:15px;padding:8px 11px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);min-width:0}
+input:focus{border-color:var(--accent);outline:none}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:10px;font-size:14.5px;z-index:80;box-shadow:var(--shadow)}
+
+/* ---------- Home ---------- */
+.hero{padding:26px 0 8px;display:grid;gap:16px}
+.hero h1{font-size:clamp(34px,5.4vw,58px);font-weight:800;letter-spacing:-.025em}
+.hero h1 .hl{padding:0 .1em}
+.hero p{font-size:19px;color:var(--ink-2);max-width:62ch;margin:0}
+.syllabus{margin:26px 0;padding:18px 20px;border:1.5px dashed var(--accent-line);border-radius:14px;background:var(--surface);display:grid;gap:8px}
+.syllabus q{font-family:var(--f-mono);font-size:15px;quotes:none;color:var(--ink)}
+.syllabus small{color:var(--ink-3)}
+.how{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:8px 0 34px}
+.how div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px;color:var(--ink-2);display:grid;gap:4px;align-content:start}
+.how b{color:var(--ink);font-size:15px}
+.how .k{font-family:var(--f-mono);font-size:12px;color:var(--accent)}
+@media (max-width:760px){.how{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.phase{margin:30px 0 12px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.phase h2{font-size:24px}
+.phase span{color:var(--ink-3);font-size:14.5px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.mcard{display:grid;gap:8px;align-content:start;padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s;position:relative}
+.mcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+.mcard .num{font-family:var(--f-mono);font-size:13px;color:var(--accent);font-weight:600}
+.mcard h3{font-size:20px}
+.mcard p{margin:0;font-size:14.5px;color:var(--ink-2);line-height:1.5}
+.mcard .meta{font-size:12.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:8px}
+.mcard.soon{opacity:.6}
+
+/* ---------- Module ---------- */
+.mod-head{display:grid;gap:12px;padding:6px 0 18px}
+.mod-head h1{font-size:clamp(30px,4.6vw,46px);font-weight:800;letter-spacing:-.02em}
+.mod-head .sum{font-size:18px;color:var(--ink-2);margin:0;max-width:66ch}
+.objectives{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px 16px}
+.objectives summary{cursor:pointer;font-weight:700;padding:10px 0;font-size:15px}
+.objectives ul{margin:0 0 12px;padding-left:20px;color:var(--ink-2);font-size:15.5px}
+.subnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);
+  margin:0 -4px 22px;padding:10px 4px;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+@media (max-width:980px){.subnav{top:calc(57px + env(safe-area-inset-top,0px))}}
+.tab{flex:none;border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 13px;font-size:13.5px;cursor:pointer;text-decoration:none;color:var(--ink-2);display:flex;gap:6px;align-items:center;white-space:nowrap}
+.tab:hover{border-color:var(--accent-line);color:var(--ink)}
+.tab.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.tab .d{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.tab.done .d{background:var(--ok)}
+.tab.sep{margin-left:8px}
+.tab.special{font-weight:700}
+
+/* Lesson content */
+.lesson-head{display:grid;gap:6px;margin-bottom:18px}
+.lesson-head h2{font-size:clamp(26px,3.6vw,34px);font-weight:700}
+.prose{font-size:17.5px}
+.prose>*+*{margin-top:1em}
+.prose h3{font-size:23px;margin-top:1.7em}
+.prose h4{font-size:18.5px;margin-top:1.3em}
+.prose p{margin-bottom:0;max-width:70ch}
+.prose ul,.prose ol{padding-left:1.3em;max-width:68ch}
+.prose li+li{margin-top:.3em}
+.prose table{border-collapse:collapse;width:100%;font-size:15.5px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.prose th,.prose td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.prose th{background:var(--surface-2);font-size:13.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2)}
+.prose tr:last-child td{border-bottom:0}
+.prose figure{margin:1.4em 0}
+.prose figcaption{font-size:14px;color:var(--ink-3);margin-top:8px;text-align:center}
+.prose hr{border:0;border-top:1.5px dashed var(--line);margin:2em 0}
+.prose details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 16px}
+.prose details>summary{cursor:pointer;padding:12px 0;font-weight:700;color:var(--accent)}
+.prose details[open]>summary{border-bottom:1px solid var(--line);margin-bottom:12px}
+.prose details>:last-child{margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:700px){.grid2,.grid3{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0}
+.card>*+*{margin-top:.5em}
+.card h4{margin:0}
+.big-idea{font-family:var(--f-display);font-size:clamp(21px,2.8vw,27px);line-height:1.3;font-weight:700;padding:6px 0 6px 18px;border-left:5px solid var(--marker);max-width:40ch}
+
+/* Callouts */
+.callout{border-radius:12px;padding:14px 16px 14px 16px;background:var(--surface);border:1px solid var(--line);position:relative;max-width:none}
+.callout>*+*{margin-top:.55em}
+.callout::before{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:6px;font-family:var(--f-body)}
+.callout.analogy{background:var(--violet-soft);border-color:transparent}.callout.analogy::before{content:"Think of it like this";color:var(--violet)}
+.callout.tip{background:var(--accent-soft);border-color:transparent}.callout.tip::before{content:"GATE tip";color:var(--accent)}
+.callout.trap{background:var(--bad-soft);border-color:transparent}.callout.trap::before{content:"Common trap";color:var(--bad)}
+.callout.key{background:var(--surface);border:2px solid var(--marker)}.callout.key::before{content:"Key idea";color:var(--warn)}
+.callout.info{background:var(--surface-2);border-color:transparent}.callout.info::before{content:"Good to know";color:var(--ink-2)}
+.callout.try{background:var(--ok-soft);border-color:transparent}.callout.try::before{content:"Try it yourself";color:var(--ok)}
+.callout.formula{background:var(--warn-soft);border-color:transparent}.callout.formula::before{content:"Formula";color:var(--warn)}
+
+/* Code blocks */
+pre.code{background:var(--code-bg);color:var(--code-ink);border-radius:12px;padding:14px 0;overflow-x:auto;font-family:var(--f-mono);font-size:14.5px;line-height:1.6;margin:0;tab-size:4;counter-reset:ln}
+pre.code .ln{display:block;padding:0 18px 0 0}
+pre.code .ln::before{counter-increment:ln;content:counter(ln);display:inline-block;width:3.2em;padding-right:1em;text-align:right;color:var(--code-dim);user-select:none}
+pre.code.nolines .ln::before{display:none}
+pre.code.nolines .ln{padding-left:18px}
+pre.code .ln.mark{background:var(--code-hl)}
+.codewrap{position:relative}
+.codewrap .lang{position:absolute;top:8px;right:12px;font-size:11px;color:var(--code-dim);font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.1em}
+.k{color:var(--c-kw)}.t{color:var(--c-type)}.s{color:var(--c-str)}.nm{color:var(--c-num)}.cm{color:var(--c-com);font-style:italic}.pp{color:var(--c-pre)}.fn{color:var(--c-fn)}
+.term{background:var(--code-bg);color:#C9F1D2;font-family:var(--f-mono);font-size:14.5px;border-radius:12px;padding:12px 16px;white-space:pre-wrap;overflow-x:auto}
+.term::before{content:"OUTPUT";display:block;font-size:10.5px;letter-spacing:.14em;color:var(--code-dim);margin-bottom:4px}
+.term.plain{color:var(--code-ink)}.term.plain::before{display:none}
+
+/* Viz frame (all widgets live in one) */
+.viz{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:14px;min-width:0;box-shadow:var(--shadow)}
+.viz-title{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px}
+.viz-title::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--accent);flex:none}
+.viz-title .sub{font-weight:400;color:var(--ink-3);font-size:13.5px}
+.viz-stage{min-width:0;overflow-x:auto}
+.viz-note{font-size:15.5px;color:var(--ink);background:var(--surface-2);border-radius:10px;padding:10px 14px;min-height:2.6em}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ctl .count{font-family:var(--f-mono);font-size:13px;color:var(--ink-3);margin-left:auto}
+.progress-dots{display:flex;gap:4px;flex-wrap:wrap}
+.progress-dots i{width:16px;height:5px;border-radius:3px;background:var(--surface-3)}
+.progress-dots i.on{background:var(--accent)}
+
+/* Trace widget */
+.tr-body{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:12px}
+@media (max-width:760px){.tr-body{grid-template-columns:minmax(0,1fr)}}
+.tr-code{background:var(--code-bg);border-radius:12px;padding:10px 0;overflow-x:auto;font-family:var(--f-mono);font-size:13.8px;line-height:1.65;color:var(--code-ink)}
+.tr-code .ln{display:flex;white-space:pre;padding-right:14px;transition:background .2s}
+.tr-code .ln .no{width:2.6em;flex:none;text-align:right;padding-right:.5em;color:var(--code-dim);user-select:none}
+.tr-code .ln .ar{width:1.4em;flex:none;color:var(--marker);text-align:center}
+.tr-code .ln.cur{background:var(--code-hl)}
+.tr-code .ln.cur .no{color:var(--code-ink)}
+.tr-side{display:grid;gap:10px;align-content:start;min-width:0}
+.panel{border:1px solid var(--line);border-radius:12px;background:var(--surface-2);padding:10px 12px;min-width:0}
+.panel-h{font-size:11.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);font-weight:700;margin-bottom:6px}
+.vars{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-family:var(--f-mono);font-size:13.5px;align-items:center}
+.vars .vn{color:var(--ink-2)}
+.vars .vv{color:var(--ink);font-weight:600;overflow-wrap:anywhere}
+.vars .vv.chg{background:var(--marker);color:var(--marker-ink);border-radius:5px;padding:0 6px;justify-self:start;animation:pop .35s}
+@keyframes pop{from{transform:scale(1.25)}to{transform:none}}
+.frame{border:1.5px solid var(--line);border-radius:10px;background:var(--surface);padding:8px 10px}
+.frame+.frame{margin-top:6px}
+.frame.top{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.frame-h{font-family:var(--f-mono);font-size:12.5px;color:var(--accent);font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;gap:8px}
+.frame-h span{color:var(--ink-3);font-weight:400}
+.out{background:var(--code-bg);color:#C9F1D2;font-family:var(--f-mono);font-size:13.5px;border-radius:10px;padding:8px 12px;min-height:2.4em;white-space:pre-wrap;overflow-wrap:anywhere}
+.out .blink{display:inline-block;width:.55em;height:1.05em;background:#C9F1D2;vertical-align:-2px;animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+
+/* Data structure drawings */
+.arr{display:inline-flex;flex-direction:column;gap:4px;padding:4px 2px}
+.arr-row{display:flex}
+.cell{min-width:46px;height:46px;border:1.5px solid var(--ink-3);margin-left:-1.5px;display:grid;place-items:center;font-family:var(--f-mono);font-size:15px;font-weight:600;background:var(--surface);padding:0 6px;transition:background .25s,color .25s}
+.cell:first-child{margin-left:0;border-radius:8px 0 0 8px}.cell:last-child{border-radius:0 8px 8px 0}
+.cell.empty{color:var(--ink-3);font-weight:400}
+.lab-row{display:flex}
+.lab-row span{min-width:46px;margin-left:-1.5px;text-align:center;font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3);padding:0 6px}
+.lab-row span:first-child{margin-left:0}
+.lab-row.ptr span{color:var(--accent);font-weight:700;font-size:12px}
+.is-active{background:var(--accent)!important;color:var(--accent-ink)!important;border-color:var(--accent)!important}
+.is-visit{background:var(--marker)!important;color:var(--marker-ink)!important}
+.is-done{background:var(--ok-soft)!important;color:var(--ok)!important;border-color:var(--ok)!important}
+.is-bad{background:var(--bad-soft)!important;color:var(--bad)!important;border-color:var(--bad)!important}
+.is-dim{opacity:.35}
+.stack-v{display:inline-flex;flex-direction:column;align-items:stretch;min-width:120px;border:2px solid var(--ink-3);border-top:0;border-radius:0 0 10px 10px;padding:4px;gap:4px;min-height:60px;justify-content:flex-end}
+.stack-v .cell{border-radius:6px!important;margin:0;width:100%}
+.ll{display:flex;align-items:center;gap:0;padding:6px 2px;flex-wrap:nowrap}
+.ll-head{font-family:var(--f-mono);font-size:12.5px;color:var(--accent);font-weight:700;margin-right:8px;display:flex;align-items:center;gap:6px}
+.ll-node{display:flex;border:1.5px solid var(--ink-3);border-radius:9px;overflow:hidden;background:var(--surface);flex:none;position:relative}
+.ll-node .d{padding:8px 12px;font-family:var(--f-mono);font-weight:600;font-size:15px;min-width:44px;text-align:center}
+.ll-node .p{width:24px;border-left:1.5px dashed var(--ink-3);display:grid;place-items:center}
+.ll-node .p::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--ink-2)}
+.ll-node .pv{width:24px;border-right:1.5px dashed var(--ink-3);display:grid;place-items:center}
+.ll-node .pv::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--ink-2)}
+.ll-node .addr{position:absolute;bottom:-17px;left:0;right:0;text-align:center;font-family:var(--f-mono);font-size:10.5px;color:var(--ink-3)}
+.ll-arrow{width:34px;height:2px;background:var(--ink-2);position:relative;flex:none}
+.ll-arrow::after{content:"";position:absolute;right:-1px;top:-4px;border:5px solid transparent;border-left:7px solid var(--ink-2);border-right:0}
+.ll-arrow.both::before{content:"";position:absolute;left:-1px;top:-4px;border:5px solid transparent;border-right:7px solid var(--ink-2);border-left:0}
+.ll-null{font-family:var(--f-mono);font-size:13px;color:var(--ink-3);margin-left:4px}
+.ll.has-addr{padding-bottom:22px}
+svg.ds{display:block;margin:0 auto;max-width:100%;height:auto;font-family:var(--f-mono)}
+svg.ds .edge{stroke:var(--ink-3);stroke-width:1.8;fill:none}
+svg.ds .edge.is-active{stroke:var(--accent);stroke-width:3}
+svg.ds .edge.is-done{stroke:var(--ok);stroke-width:3}
+svg.ds .edge.is-dim{opacity:.25}
+svg.ds .node rect,svg.ds .node circle{fill:var(--surface);stroke:var(--ink-2);stroke-width:1.8;transition:fill .25s}
+svg.ds .node text{fill:var(--ink);font-size:14px;font-weight:600;text-anchor:middle;dominant-baseline:central}
+svg.ds .node.is-active rect,svg.ds .node.is-active circle{fill:var(--accent);stroke:var(--accent)}
+svg.ds .node.is-active text{fill:var(--accent-ink)}
+svg.ds .node.is-visit rect,svg.ds .node.is-visit circle{fill:var(--marker);stroke:var(--warn)}
+svg.ds .node.is-visit text{fill:var(--marker-ink)}
+svg.ds .node.is-done rect,svg.ds .node.is-done circle{fill:var(--ok-soft);stroke:var(--ok)}
+svg.ds .node.is-done text{fill:var(--ok)}
+svg.ds .node.is-bad rect,svg.ds .node.is-bad circle{fill:var(--bad-soft);stroke:var(--bad)}
+svg.ds .node.is-dim{opacity:.3}
+svg.ds .note{fill:var(--accent);font-size:12px;text-anchor:middle;font-weight:600}
+svg.ds .wt{fill:var(--ink-2);font-size:12px;text-anchor:middle;paint-order:stroke;stroke:var(--surface);stroke-width:4px}
+svg.ds .arrowhead{fill:var(--ink-3)}
+svg.ds .lbl{fill:var(--ink-3);font-size:11px;text-anchor:middle}
+
+/* Questions */
+.qset-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:18px}
+.score{display:flex;gap:16px;align-items:center;font-size:14.5px;color:var(--ink-2)}
+.score b{font-family:var(--f-display);font-size:26px;color:var(--ink)}
+.qlist{display:grid;gap:16px}
+.q{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:12px;min-width:0}
+.q.right{border-color:var(--ok)}.q.wrong{border-color:var(--bad)}
+.q-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.q-num{font-family:var(--f-mono);font-weight:600;color:var(--accent);font-size:14px}
+.q-type{font-size:12px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.q-text{font-size:16.5px}
+.q-text>*+*{margin-top:.6em}
+.q-text p{margin:0}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);padding:10px 12px;cursor:pointer;font-size:15.5px;width:100%}
+.opt:hover:not(:disabled){border-color:var(--accent-line);background:var(--accent-soft)}
+.opt .lt{font-family:var(--f-mono);font-weight:600;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;background:var(--surface-2);flex:none;font-size:13px}
+.opt.msq .lt{border-radius:50%}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .lt{background:var(--accent);color:var(--accent-ink)}
+.opt.correct{border-color:var(--ok);background:var(--ok-soft)}
+.opt.correct .lt{background:var(--ok);color:var(--surface)}
+.opt.incorrect{border-color:var(--bad);background:var(--bad-soft)}
+.opt.incorrect .lt{background:var(--bad);color:var(--surface)}
+.opt:disabled{cursor:default}
+.opt .ot{min-width:0;overflow-wrap:anywhere}
+.opt .ot pre.code{margin-top:4px}
+.feedback{border-radius:10px;padding:12px 14px;font-size:15.5px;display:grid;gap:8px}
+.feedback.right{background:var(--ok-soft)}
+.feedback.wrong{background:var(--bad-soft)}
+.feedback .verdict{font-weight:700}
+.feedback.right .verdict{color:var(--ok)}.feedback.wrong .verdict{color:var(--bad)}
+.feedback .explain{color:var(--ink)}
+.feedback .explain>*+*{margin-top:.55em}
+.feedback .explain p{margin:0}
+.inline-check{border:2px dashed var(--accent-line);border-radius:14px;padding:4px}
+.inline-check .q{border:0;padding:12px 14px}
+.inline-check .q::before{content:"Quick check";font-size:12px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:var(--accent)}
+
+/* Lesson footer */
+.lesson-foot{margin-top:40px;padding-top:20px;border-top:1.5px dashed var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.notes-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
+.notes{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:clamp(16px,4vw,34px)}
+.notes h1{font-size:30px}.notes h2{font-size:24px;margin-top:1.6em;padding-bottom:6px;border-bottom:2px solid var(--marker)}.notes h3{font-size:19px;margin-top:1.3em}
+.notes blockquote{margin:0;padding:10px 16px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0}
+.empty-state{background:var(--surface);border:1.5px dashed var(--line);border-radius:14px;padding:24px;text-align:center;color:var(--ink-2)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<link rel="stylesheet" href="edition.css">
+<a class="skip" href="#main">Skip to lesson</a>
+<div class="topbar"><button class="btn small" id="menuBtn" aria-label="Open course menu">☰ Menu</button><b id="topTitle">Zero to GATE Programming</b></div>
+<div class="app">
+  <aside class="rail" id="rail" aria-label="Course navigation"></aside>
+  <main class="main" id="main" tabindex="-1"><div class="col" id="view"></div></main>
+</div>
+
+<script>
+const GATE = (() => {
+  "use strict";
+  const CURRICULUM = [
+    {id:"m00",phase:"Foundations",title:"How Computers & Code Work",blurb:"What a computer is, binary and memory, compilers and IDEs, and your very first C program."},
+    {id:"m01",phase:"C Language",title:"C Building Blocks",blurb:"Variables, data types, operators, precedence, input/output and type conversion."},
+    {id:"m02",phase:"C Language",title:"Decisions & Loops",blurb:"if/else, switch and fall-through, for/while/do-while, break, continue and loop counting."},
+    {id:"m03",phase:"C Language",title:"Functions, Scope & Storage",blurb:"Functions, the call stack, call by value, static/extern/auto, and static vs dynamic scoping."},
+    {id:"m04",phase:"C Language",title:"Pointers, Arrays & Strings",blurb:"Addresses, pointer arithmetic, array-to-pointer conversion, strings, structs and dynamic memory."},
+    {id:"m05",phase:"C Language",title:"Recursion",blurb:"Base cases, recursion trees, stack frames, recurrences and GATE-style output tracing."},
+    {id:"m06",phase:"Data Structures",title:"Arrays & Complexity",blurb:"Big-O basics, row/column-major address formulas, special matrices and searching."},
+    {id:"m07",phase:"Data Structures",title:"Stacks & Queues",blurb:"LIFO and FIFO, infix to postfix, expression evaluation, circular queues, queues from stacks."},
+    {id:"m08",phase:"Data Structures",title:"Linked Lists",blurb:"Nodes and pointers, insert, delete, reverse, doubly and circular lists, GATE code fragments."},
+    {id:"m09",phase:"Data Structures",title:"Trees & Binary Search Trees",blurb:"Tree vocabulary, node/height formulas, traversals, BST operations and counting trees."},
+    {id:"m10",phase:"Data Structures",title:"Binary Heaps",blurb:"Complete trees stored in arrays, heapify, build-heap in O(n), insert, delete and heap sort."},
+    {id:"m11",phase:"Data Structures",title:"Graphs",blurb:"Adjacency matrix and list, BFS, DFS, edge classification, components and topological sort."}
+  ];
+  const PHASES = {
+    "Foundations":"Zero assumed. What code even is.",
+    "C Language":"Build the C skills used in GATE programming questions.",
+    "Data Structures":"How programs organise data, and what GATE loves to ask about it."
+  };
+  const modules = {}, widgets = {};
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const pad2 = n => String(n).padStart(2,"0");
+
+  /* ---------- storage (per-viewer convenience only) ---------- */
+  const KEY = "zero2gate-pds-complete-v2";
+  let S = {done:{}, ans:{}, last:null, bookmarks:{}, notes:{}, theme:"light"};
+  try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch(e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) { toast("Browser storage is unavailable. Export your progress before closing."); } };
+
+  /* ---------- downloads ---------- */
+  let dlP = null;
+  function getDownloads(){
+    if (!dlP) dlP = (window.claude && window.claude.use) ? window.claude.use("downloads").catch(() => null) : Promise.resolve(null);
+    return dlP;
+  }
+  async function download(filename, text){
+    const dl = await getDownloads();
+    if (dl) {
+      try { await dl.save({filename, data:text}); toast("Saved " + filename); }
+      catch(e) { if (e && e.code !== "declined") toast("Couldn't save the file here (" + (e.code||"error") + ")."); }
+      return;
+    }
+    try {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], {type: filename.endsWith(".html") ? "text/html" : "text/markdown"}));
+      a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),10000);
+    } catch(e) { toast("Downloads are not available in this view."); }
+  }
+  let toastT;
+  function toast(msg){
+    let t = $(".toast"); if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role","status"); document.body.appendChild(t); }
+    t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600);
+  }
+
+  /* ---------- C syntax highlighting ---------- */
+  const KW = new Set("auto break case const continue default do else enum extern for goto if register return sizeof static struct switch typedef union volatile while NULL true false".split(" "));
+  const TY = new Set("int char float double long short signed unsigned void bool size_t FILE".split(" "));
+  function hl(code){
+    const re = /(\/\*[\s\S]*?\*\/|\/\/[^\n]*)|("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')|(^[ \t]*#[^\n]*)|(\b0[xX][0-9a-fA-F]+\b|\b\d+(?:\.\d+)?(?:[eE][-+]?\d+)?[fFuUlL]*\b)|([A-Za-z_]\w*)/gm;
+    let out = "", last = 0, m;
+    while ((m = re.exec(code))) {
+      out += esc(code.slice(last, m.index));
+      const w = m[0];
+      if (m[1]) out += `<span class="cm">${esc(w)}</span>`;
+      else if (m[2]) out += `<span class="s">${esc(w)}</span>`;
+      else if (m[3]) out += `<span class="pp">${esc(w)}</span>`;
+      else if (m[4]) out += `<span class="nm">${esc(w)}</span>`;
+      else if (KW.has(w)) out += `<span class="k">${w}</span>`;
+      else if (TY.has(w)) out += `<span class="t">${w}</span>`;
+      else if (/^\s*\(/.test(code.slice(re.lastIndex))) out += `<span class="fn">${w}</span>`;
+      else out += w;
+      last = re.lastIndex;
+    }
+    return out + esc(code.slice(last));
+  }
+  function codeBlock(code, opts={}){
+    const lines = String(code).replace(/^\n/,"").replace(/\s+$/,"").split("\n");
+    const marks = new Set(opts.mark || []);
+    const body = lines.map((l,i) => `<span class="ln${marks.has(i+1)?" mark":""}">${hl(l) || " "}</span>`).join("");
+    return `<div class="codewrap"><pre class="code${opts.nolines?" nolines":""}">${body}</pre>${opts.lang===false?"":`<span class="lang">${esc(opts.lang||"C")}</span>`}</div>`;
+  }
+
+  /* ---------- tiny markdown (for notes + question text) ---------- */
+  function inline(s){
+    const codes = [];
+    s = s.replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return "\u0000" + (codes.length-1) + "\u0000"; });
+    s = esc(s)
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+
+
+      .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    return s.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${esc(codes[+i])}</code>`);
+  }
+  function md(src){
+    const lines = String(src||"").replace(/\r/g,"").split("\n");
+    let html = "", i = 0;
+    const isTableSep = l => /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(l);
+    const cells = l => l.trim().replace(/^\|/,"").replace(/\|$/,"").split("|").map(c => c.trim());
+    while (i < lines.length) {
+      let l = lines[i];
+      if (/^```/.test(l)) {
+        const lang = l.slice(3).trim(); const buf = []; i++;
+        while (i < lines.length && !/^```/.test(lines[i])) buf.push(lines[i++]);
+        i++;
+        html += (lang === "" || /^c$/i.test(lang)) ? codeBlock(buf.join("\n"), {lang: lang ? "C" : false, nolines: true}) : `<div class="term${/^out/i.test(lang)?"":" plain"}">${esc(buf.join("\n"))}</div>`;
+        continue;
+      }
+      if (/^\s*$/.test(l)) { i++; continue; }
+      let h = l.match(/^(#{1,4})\s+(.*)$/);
+      if (h) { html += `<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`; i++; continue; }
+      if (/^\s*(---|\*\*\*)\s*$/.test(l)) { html += "<hr>"; i++; continue; }
+      if (/^\|/.test(l) && i+1 < lines.length && isTableSep(lines[i+1])) {
+        const head = cells(l); i += 2; const rows = [];
+        while (i < lines.length && /^\|/.test(lines[i])) rows.push(cells(lines[i++]));
+        html += `<div class="tablewrap"><table><thead><tr>${head.map(c=>`<th>${inline(c)}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+        continue;
+      }
+      if (/^>\s?/.test(l)) {
+        const buf = []; while (i < lines.length && /^>\s?/.test(lines[i])) buf.push(lines[i++].replace(/^>\s?/,""));
+        html += `<blockquote>${md(buf.join("\n"))}</blockquote>`; continue;
+      }
+      if (/^\s*([-*]|\d+\.)\s+/.test(l)) {
+        const ordered = /^\s*\d+\./.test(l); const items = [];
+        while (i < lines.length && /^\s*([-*]|\d+\.)\s+/.test(lines[i])) {
+          let it = lines[i++].replace(/^\s*([-*]|\d+\.)\s+/,"");
+          while (i < lines.length && /^\s{2,}\S/.test(lines[i]) && !/^\s*([-*]|\d+\.)\s+/.test(lines[i])) it += " " + lines[i++].trim();
+          items.push(it);
+        }
+        html += `<${ordered?"ol":"ul"}>${items.map(x=>`<li>${inline(x)}</li>`).join("")}</${ordered?"ol":"ul"}>`; continue;
+      }
+      const buf = [l]; i++;
+      while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^(#{1,4}\s|```|>|\||\s*([-*]|\d+\.)\s+)/.test(lines[i])) buf.push(lines[i++]);
+      html += `<p>${inline(buf.join(" "))}</p>`;
+    }
+    return html;
+  }
+  // question/option text: plain strings are treated as light markdown; strings starting with "<" are trusted HTML.
+  const rich = s => { s = String(s ?? ""); return /^\s*</.test(s) ? s : md(s); };
+  const richInline = s => { s = String(s ?? ""); return /^\s*</.test(s) ? s : inline(s); };
+
+  /* ---------- drawing helpers for data structures ---------- */
+  function arrayHTML(values, o={}){
+    const hlc = o.hl || {}, top = o.ptr || o.top || {}, base = o.base ?? 0;
+    const idx = o.index !== false;
+    const ptrRow = Object.keys(top).length ? `<div class="lab-row ptr">${values.map((_,i)=>`<span>${esc(top[i]||"")}${top[i]?" ↓":""}</span>`).join("")}</div>` : "";
+    const cellsH = values.map((v,i)=>`<div class="cell${v===null||v===""||v===undefined?" empty":""} ${hlc[i]?"is-"+hlc[i]:""}">${v===null||v===undefined?"&nbsp;":esc(v)}</div>`).join("");
+    const idxRow = idx ? `<div class="lab-row">${values.map((_,i)=>`<span>${o.addr ? esc(o.addr.start + i*o.addr.size) : (o.labels ? esc(o.labels[i]) : base+i)}</span>`).join("")}</div>` : "";
+    return `<div class="arr">${o.title?`<div class="panel-h">${esc(o.title)}</div>`:""}${ptrRow}<div class="arr-row">${cellsH}</div>${idxRow}</div>`;
+  }
+  function stackHTML(items, o={}){
+    const hlc = o.hl || {};
+    const cells = items.map((v,i)=>({v,i})).reverse().map(({v,i})=>`<div class="cell ${hlc[i]?"is-"+hlc[i]:""}">${esc(v)}</div>`).join("");
+    return `<div style="display:inline-flex;flex-direction:column;align-items:center;gap:4px">${o.title?`<div class="panel-h">${esc(o.title)}</div>`:""}<div class="stack-v">${cells || '<div class="cell empty" style="border-style:dashed">empty</div>'}</div><div class="lab-row"><span style="min-width:120px">${items.length?"↑ top = "+esc(items[items.length-1]):""}</span></div></div>`;
+  }
+  function listHTML(nodes, o={}){
+    const anyAddr = nodes.some(n => n.addr != null);
+    let h = `<div class="ll${anyAddr?" has-addr":""}">`;
+    if (o.head !== false) h += `<span class="ll-head">${esc(o.head||"head")} <span class="ll-arrow"></span></span>`;
+    nodes.forEach((n,i) => {
+      h += `<div class="ll-node ${n.hl?"is-"+n.hl:""}">${o.doubly?'<span class="pv"></span>':""}<span class="d">${esc(n.v)}</span><span class="p"></span>${n.addr!=null?`<span class="addr">${esc(n.addr)}</span>`:""}</div>`;
+      if (i < nodes.length-1) h += `<span class="ll-arrow${o.doubly?" both":""}"></span>`;
+    });
+    if (o.circular) h += `<span class="ll-arrow"></span><span class="ll-null">↺ back to first</span>`;
+    else if (o.nullEnd !== false) h += `<span class="ll-arrow"></span><span class="ll-null">NULL</span>`;
+    return h + "</div>";
+  }
+  // Tree: node = {v, children:[node|null], hl, note} or binary {v, l, r}
+  function svgTree(root, o={}){
+    if (!root) return `<div class="empty-state">(empty tree)</div>`;
+    const norm = n => {
+      if (!n) return null;
+      let kids = n.children || n.kids;
+      if (!kids && ("l" in n || "r" in n)) kids = (n.l || n.r) ? [n.l||null, n.r||null] : [];
+      return {v:n.v ?? n.label, hl:n.hl, note:n.note, kids:(kids||[]).map(norm)};
+    };
+    const r = norm(root);
+    let maxW = 0; const all = [];
+    (function meas(n){ if(!n) return; n.w = Math.max(34, String(n.v).length*8.6 + 18); maxW = Math.max(maxW, n.w); n.kids.forEach(meas); })(r);
+    const dx = Math.max(o.dx || 0, maxW + 12), dy = o.dy || 70; let slot = 0, depth = 0;
+    (function lay(n, d){
+      n.d = d; depth = Math.max(depth, d); all.push(n);
+      const real = n.kids.filter(Boolean);
+      if (!real.length) { n.x = slot; slot += 1; return; }
+      const xs = n.kids.map(k => { if (k) { lay(k, d+1); return k.x; } const gx = slot; slot += 0.6; return gx; });
+      n.ghosts = n.kids.map((k,i) => k ? null : xs[i]);
+      n.x = (xs[0] + xs[xs.length-1]) / 2;
+    })(r, 0);
+    const padX = maxW/2 + 8, H = (depth)*dy + 60 + (o.notes!==false?16:0);
+    const W = Math.max(1, (slot-1))*dx + padX*2;
+    const X = n => padX + n.x*dx, Y = n => 28 + n.d*dy;
+    let edges = "", nodes = "";
+    all.forEach(n => n.kids.forEach(k => { if (k) edges += `<line class="edge ${k.hl==="active"||k.edge==="active"?"is-active":""}" x1="${X(n)}" y1="${Y(n)}" x2="${X(k)}" y2="${Y(k)}"/>`; }));
+    all.forEach(n => {
+      const w = n.w, x = X(n), y = Y(n), round = String(n.v).length <= 3;
+      nodes += `<g class="node ${n.hl?"is-"+n.hl:""}">${round?`<circle cx="${x}" cy="${y}" r="18"/>`:`<rect x="${x-w/2}" y="${y-16}" width="${w}" height="32" rx="10"/>`}<text x="${x}" y="${y}">${esc(n.v)}</text></g>`;
+      if (n.note != null && n.note !== "") nodes += `<text class="note" x="${x}" y="${y+32}">${esc(n.note)}</text>`;
+    });
+    return `<svg class="ds" viewBox="0 0 ${W} ${H}" width="${W}" style="max-width:min(100%,${W}px)" role="img" aria-label="${esc(o.label||"tree diagram")}">${edges}${nodes}</svg>`;
+  }
+  // Graph: {nodes:[{id,x,y,hl,label}], edges:[{a,b,w,hl,dir}]}, o:{w,h,directed}
+  function svgGraph(g, o={}){
+    const W = o.w || 420, H = o.h || 260, R = 19, pos = {};
+    g.nodes.forEach(n => pos[n.id] = n);
+    const mid = "ah" + Math.random().toString(36).slice(2,8);
+    let s = `<svg class="ds" viewBox="0 0 ${W} ${H}" width="${W}" style="max-width:min(100%,${W}px)" role="img" aria-label="${esc(o.label||"graph diagram")}"><defs><marker id="${mid}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0,0 L10,5 L0,10 z"/></marker></defs>`;
+    g.edges.forEach(e => {
+      const A = pos[e.a], B = pos[e.b]; if (!A || !B) return;
+      const dxv = B.x-A.x, dyv = B.y-A.y, L = Math.hypot(dxv,dyv) || 1, ux = dxv/L, uy = dyv/L;
+      const directed = e.dir ?? o.directed;
+      const x1 = A.x+ux*R, y1 = A.y+uy*R, x2 = B.x-ux*(R+(directed?3:0)), y2 = B.y-uy*(R+(directed?3:0));
+      s += `<line class="edge ${e.hl?"is-"+e.hl:""}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${directed?`marker-end="url(#${mid})"`:""}/>`;
+      if (e.w != null) s += `<text class="wt" x="${(A.x+B.x)/2 - uy*10}" y="${(A.y+B.y)/2 + ux*10 + 4}">${esc(e.w)}</text>`;
+    });
+    g.nodes.forEach(n => {
+      s += `<g class="node ${n.hl?"is-"+n.hl:""}"><circle cx="${n.x}" cy="${n.y}" r="${R}"/><text x="${n.x}" y="${n.y}">${esc(n.label ?? n.id)}</text></g>`;
+      if (n.note != null) s += `<text class="note" x="${n.x}" y="${n.y+R+15}">${esc(n.note)}</text>`;
+    });
+    return s + "</svg>";
+  }
+
+  /* ---------- built-in widget: frames (generic step-by-step visual) ---------- */
+  function stepper(el, total, render, o={}){
+    let i = 0, timer = null;
+    el.classList.add("viz");
+    el.innerHTML = `${o.title?`<div class="viz-title">${esc(o.title)}${o.sub?`<span class="sub">${esc(o.sub)}</span>`:""}</div>`:""}
+      <div class="viz-body"></div>
+      <div class="ctl">
+        <button class="btn small" data-a="first" aria-label="Go to first step">⏮</button>
+        <button class="btn small" data-a="prev">← Back</button>
+        <button class="btn small primary" data-a="next">Next →</button>
+        <button class="btn small" data-a="play">▶ Play</button>
+        <span class="count"></span>
+      </div><div class="progress-dots" aria-hidden="true"></div>`;
+    const body = $(".viz-body", el), count = $(".count", el), dots = $(".progress-dots", el);
+    if (total <= 40) dots.innerHTML = Array.from({length:total}, () => "<i></i>").join(""); else dots.hidden = true;
+    const playBtn = $('[data-a="play"]', el);
+    const stop = () => { clearInterval(timer); timer = null; playBtn.textContent = "▶ Play"; };
+    function show(){
+      render(body, i);
+      count.textContent = `step ${i+1} / ${total}`;
+      $$(".progress-dots i", el).forEach((d,k) => d.classList.toggle("on", k <= i));
+      $('[data-a="prev"]', el).disabled = i === 0; $('[data-a="first"]', el).disabled = i === 0;
+      $('[data-a="next"]', el).disabled = i === total-1;
+    }
+    el.addEventListener("click", e => {
+      const a = e.target.closest("[data-a]")?.dataset.a; if (!a) return;
+      if (a === "next" && i < total-1) i++;
+      if (a === "prev" && i > 0) i--;
+      if (a === "first") i = 0;
+      if (a === "play") {
+        if (timer) { stop(); return; }
+        if (i === total-1) i = 0;
+        playBtn.textContent = "❚❚ Pause";
+        timer = setInterval(() => { if (!el.isConnected) { stop(); return; } if (i >= total-1) { stop(); return; } i++; show(); }, o.speed || 1300);
+      } else stop();
+      show();
+    });
+    el.tabIndex = 0;
+    el.addEventListener("keydown", e => {
+      if (e.target.closest("input,select,textarea")) return;
+      if (e.key === "ArrowRight" && i < total-1) { i++; show(); e.preventDefault(); }
+      if (e.key === "ArrowLeft" && i > 0) { i--; show(); e.preventDefault(); }
+    });
+    show();
+    return { go(k){ i = Math.max(0, Math.min(total-1, k)); show(); } };
+  }
+  function frames(el, cfg){
+    const fr = cfg.frames || [];
+    stepper(el, fr.length, (body, i) => {
+      const f = fr[i];
+      body.innerHTML = `<div class="viz-stage" style="display:grid;justify-items:${cfg.align||"center"};gap:10px">${typeof f.html === "function" ? f.html() : (f.html||"")}</div>${f.caption||f.note?`<div class="viz-note" style="margin-top:12px">${richInline(f.caption||f.note)}</div>`:""}`;
+    }, cfg);
+  }
+
+  /* ---------- built-in widget: trace (step through C code) ---------- */
+  function valHTML(v){
+    if (Array.isArray(v)) return `<span style="display:inline-flex;gap:0">${v.map(x=>`<span style="border:1px solid var(--ink-3);padding:0 6px;margin-left:-1px">${esc(x)}</span>`).join("")}</span>`;
+    return esc(v);
+  }
+  function varsHTML(vars, changed){
+    const keys = Object.keys(vars);
+    if (!keys.length) return `<div class="muted" style="font-size:13.5px">(no variables yet)</div>`;
+    return `<div class="vars">${keys.map(k=>`<span class="vn">${esc(k)}</span><span class="vv${changed.includes(k)?" chg":""}">${valHTML(vars[k])}</span>`).join("")}</div>`;
+  }
+  function trace(el, cfg){
+    const lines = String(cfg.code).replace(/^\n/,"").replace(/\s+$/,"").split("\n");
+    let vars = {}, out = "", stack = null;
+    const states = (cfg.steps||[]).map(s => {
+      if (s.reset) vars = {};
+      if (s.vars) { vars = {...vars, ...s.vars}; Object.keys(s.vars).forEach(k => { if (s.vars[k] === null) delete vars[k]; }); }
+      if (s.stack) stack = s.stack;
+      if (s.out) out += s.out;
+      return {line:s.line, note:s.note||"", vars:{...vars}, changed:Object.keys(s.vars||{}), stack, out, extra:s.extra};
+    });
+    stepper(el, states.length, (body, i) => {
+      const st = states[i];
+      const codeH = lines.map((l,k)=>`<div class="ln${st.line===k+1?" cur":""}"><span class="no">${k+1}</span><span class="ar">${st.line===k+1?"▶":""}</span><span>${hl(l)||" "}</span></div>`).join("");
+      let side = "";
+      if (st.stack) {
+        const fr = st.stack.slice().reverse();
+        side += `<div class="panel"><div class="panel-h">Call stack (top first)</div>${fr.map((f,k)=>`<div class="frame${k===0?" top":""}"><div class="frame-h">${esc(f.fn)}<span>${k===0?"running":"waiting"}</span></div>${varsHTML(f.vars||{}, k===0 ? (f.changed||[]) : [])}</div>`).join("")}</div>`;
+      }
+      if (!st.stack || Object.keys(st.vars).length) side += `<div class="panel"><div class="panel-h">${st.stack?"Globals":"Variables (memory)"}</div>${varsHTML(st.vars, st.changed)}</div>`;
+      if (st.extra) side += `<div class="panel">${st.extra}</div>`;
+      side += `<div><div class="panel-h">Screen output</div><div class="out">${esc(st.out)}<span class="blink"></span></div></div>`;
+      body.innerHTML = `<div class="tr-body"><div class="tr-code">${codeH}</div><div class="tr-side">${side}</div></div><div class="viz-note" style="margin-top:12px">${richInline(st.note)}</div>`;
+      const cur = $(".ln.cur", body); if (cur && i>0) { const box = $(".tr-code", body); box.scrollTop = Math.max(0, cur.offsetTop - box.clientHeight/2); }
+    }, {title: cfg.title || "Step through the code", sub: cfg.sub || "Use Next or the → key", speed: cfg.speed});
+  }
+  widgets.trace = trace;
+  widgets.frames = frames;
+
+  /* ---------- questions ---------- */
+  const L = "ABCDEFGH";
+  function checkAnswer(q, given){
+    if (q.type === "nat") {
+      const x = Number(given); if (!Number.isFinite(x)) return null;
+      const a = q.answer;
+      if (Array.isArray(a)) return x >= a[0] - 1e-9 && x <= a[1] + 1e-9;
+      return Math.abs(x - a) < 1e-6;
+    }
+    if (q.type === "msq") {
+      const want = [...q.answer].sort().join(","), got = [...given].sort().join(",");
+      return want === got;
+    }
+    return given === q.answer;
+  }
+  function answerText(q){
+    if (q.type === "nat") return Array.isArray(q.answer) ? `${q.answer[0]} to ${q.answer[1]}` : String(q.answer);
+    if (q.type === "msq") return q.answer.map(i => L[i]).join(", ");
+    return L[q.answer];
+  }
+  function questionEl(q, key, num, onChange){
+    const el = document.createElement("div");
+    el.className = "q"; el.id = "q-" + key;
+    const type = q.type || "mcq";
+    q.type = type;
+    const tags = [];
+    if (num != null) tags.push(`<span class="q-num">Q${num}</span>`);
+    tags.push(`<span class="q-type">${type==="mcq"?"MCQ · one answer":type==="msq"?"MSQ · one or more":"NAT · type a number"}</span>`);
+    if (q.year) tags.push(`<span class="chip year">${esc(q.year)}</span>`);
+    if (q.marks) tags.push(`<span class="chip">${esc(q.marks)} mark${q.marks>1?"s":""}</span>`);
+    if (q.tag) tags.push(`<span class="chip">${esc(q.tag)}</span>`);
+    el.innerHTML = `<div class="q-top">${tags.join("")}</div><div class="q-text">${rich(q.q)}${q.code?codeBlock(q.code):""}${q.after?rich(q.after):""}</div>
+      <div class="q-ans"></div><div class="row q-actions"></div><div class="q-fb"></div>`;
+    const ansBox = $(".q-ans", el), act = $(".q-actions", el), fb = $(".q-fb", el);
+    let sel = type === "msq" ? new Set() : null;
+    const prev = S.ans[key];
+    if (type === "nat") {
+      ansBox.innerHTML = `<div class="field"><label class="muted" for="in-${key}" style="font-size:14px">Your answer</label><input type="number" step="any" id="in-${key}" style="width:160px" inputmode="decimal"></div>`;
+    } else {
+      ansBox.innerHTML = `<div class="opts">${q.options.map((o,i)=>`<button aria-pressed="false" class="opt ${type}" data-i="${i}" type="button"><span class="lt">${L[i]}</span><span class="ot">${/\n/.test(o) && !/^\s*</.test(o) ? codeBlock(o,{nolines:true,lang:false}) : richInline(o)}</span></button>`).join("")}</div>`;
+      ansBox.addEventListener("click", e => {
+        const b = e.target.closest(".opt"); if (!b || b.disabled) return;
+        const i = +b.dataset.i;
+        if (type === "msq") { sel.has(i) ? sel.delete(i) : sel.add(i); }
+        else sel = i;
+        $$(".opt", ansBox).forEach(o => { const chosen = type==="msq" ? sel.has(+o.dataset.i) : +o.dataset.i === sel; o.classList.toggle("sel", chosen); o.setAttribute("aria-pressed",String(chosen)); });
+      });
+    }
+    act.innerHTML = `<button class="btn small primary" data-k="check" type="button">Check answer</button><button class="btn small" data-k="show" type="button">Show solution</button>`;
+    function lock(given, ok, revealed){
+      el.classList.toggle("right", ok === true); el.classList.toggle("wrong", ok === false);
+      if (type === "nat") { const inp = $("input", ansBox); inp.disabled = true; if (given != null) inp.value = given; }
+      else $$(".opt", ansBox).forEach(o => {
+        const i = +o.dataset.i, isAns = type==="msq" ? q.answer.includes(i) : q.answer === i;
+        const chosen = type==="msq" ? (given||[]).includes(i) : given === i;
+        o.disabled = true; o.classList.remove("sel");
+        if (isAns) o.classList.add("correct"); else if (chosen) o.classList.add("incorrect");
+      });
+      fb.setAttribute("role", "status");
+      fb.innerHTML = `<div class="feedback ${ok?"right":"wrong"}"><div class="verdict">${revealed && ok == null ? "Solution" : ok ? "Correct ✓" : "Not quite ✗"} · Answer: ${esc(answerText(q))}</div>${q.explain?`<div class="explain">${rich(q.explain)}</div>`:""}</div>`;
+      act.innerHTML = `<button class="btn small" data-k="retry" type="button">↺ Try again</button>`;
+    }
+    act.addEventListener("click", e => {
+      const k = e.target.closest("[data-k]")?.dataset.k; if (!k) return;
+      if (k === "check") {
+        let given = type === "nat" ? $("input", ansBox).value : type === "msq" ? [...sel] : sel;
+        if (given === null || given === "" || (Array.isArray(given) && !given.length)) { toast("Pick an answer first."); return; }
+        if (type === "nat") given = parseFloat(given);
+        const ok = checkAnswer(q, given);
+        S.ans[key] = {given, ok}; save(); lock(given, ok); onChange && onChange();
+      } else if (k === "show") {
+        S.ans[key] = {given:null, ok:false, revealed:true}; save(); lock(null, null, true); onChange && onChange();
+      } else if (k === "retry") {
+        delete S.ans[key]; save();
+        const fresh = questionEl(q, key, num, onChange); el.replaceWith(fresh); onChange && onChange();
+      }
+    });
+    if (prev) lock(prev.given, prev.revealed ? null : prev.ok, prev.revealed);
+    return el;
+  }
+
+  /* ---------- registration ---------- */
+  function module(m){
+    const base = CURRICULUM.find(c => c.id === m.id);
+    if (!base) { console.warn("[GATE] unknown module id", m.id); return; }
+    const probs = [];
+    if (!Array.isArray(m.lessons) || !m.lessons.length) probs.push("no lessons");
+    (m.lessons||[]).forEach((l,i) => { if (!l.id || !l.title || l.html == null) probs.push(`lesson ${i} missing id/title/html`); });
+    ["revision","pyqs"].forEach(k => (m[k]||[]).forEach((q,i) => {
+      const t = q.type || "mcq";
+      if (!q.q) probs.push(`${k}[${i}] missing q`);
+      if (t !== "nat" && (!Array.isArray(q.options) || q.options.length < 2)) probs.push(`${k}[${i}] options`);
+      if (t === "mcq" && (typeof q.answer !== "number" || q.answer >= (q.options||[]).length)) probs.push(`${k}[${i}] mcq answer`);
+      if (t === "msq" && !Array.isArray(q.answer)) probs.push(`${k}[${i}] msq answer`);
+      if (t === "nat" && !(typeof q.answer === "number" || Array.isArray(q.answer))) probs.push(`${k}[${i}] nat answer`);
+    }));
+    if (probs.length) console.warn("[GATE] module " + m.id + " issues:", probs);
+    modules[m.id] = Object.assign({}, base, m);
+  }
+  function widget(name, fn){ widgets[name] = fn; }
+
+  /* ---------- progress ---------- */
+  function modProgress(id){
+    const m = modules[id]; if (!m) return {done:0,total:0,pct:0};
+    const keys = m.lessons.map(l => id + "-" + l.id);
+    const qk = [...(m.revision||[]).map((_,i)=>`${id}-rev-${i}`), ...(m.pyqs||[]).map((_,i)=>`${id}-pyq-${i}`)];
+    const done = keys.filter(k => S.done[k]).length + qk.filter(k => S.ans[k] && !S.ans[k].revealed).length;
+    const total = keys.length + qk.length;
+    return {done, total, pct: total ? Math.round(done/total*100) : 0, lessonsDone: keys.filter(k=>S.done[k]).length};
+  }
+  function overall(){
+    let d = 0, t = 0; CURRICULUM.forEach(c => { const p = modProgress(c.id); d += p.done; t += p.total; });
+    return t ? Math.round(d/t*100) : 0;
+  }
+
+  /* ---------- routing ---------- */
+  function parse(){
+    const h = (location.hash || "").slice(1);
+    const m = h.match(/^(m\d\d)(?:-(.+))?$/);
+    if (!m) return {view:"home"};
+    return {view:"module", id:m[1], sub:m[2] || null};
+  }
+  function go(token){ if (location.hash.slice(1) === token) render(); else location.hash = token; }
+
+  /* ---------- rail ---------- */
+  function renderRail(route){
+    const rail = $("#rail");
+    let h = `<a class="brand" href="#home"><span class="brand-mark">&lt;/&gt;</span><span><b>Zero to GATE</b><small>Programming &amp; Data Structures</small></span></a>
+      <div class="overall"><div style="display:flex;justify-content:space-between"><span>Course activity</span><b class="mono">${overall()}%</b></div><div class="bar"><i style="width:${overall()}%"></i></div></div>`;
+    Object.keys(PHASES).forEach(ph => {
+      h += `<div><div class="phase-label">${esc(ph)}</div>`;
+      CURRICULUM.filter(c => c.phase === ph).forEach(c => {
+        const m = modules[c.id], p = modProgress(c.id), on = route.view === "module" && route.id === c.id;
+        h += `<a class="nav-mod${on?" on":""}${m?"":" soon"}" href="#${c.id}"><span class="n">${c.id.slice(1)}</span><span>${esc(c.title)}</span><span class="pct${p.pct===100?" full":""}">${m ? (p.pct===100?"✓":p.pct+"%") : "soon"}</span></a>`;
+        if (on && m) {
+          h += `<ul class="nav-lessons">${m.lessons.map((l,i)=>`<li><a href="#${c.id}-${l.id}" class="${route.sub===l.id||(!route.sub&&i===0)?"on":""}"><span class="tick">${S.done[c.id+"-"+l.id]?"✓":""}</span>${esc(l.title)}</a></li>`).join("")}
+            <li><a href="#${c.id}-notes" class="${route.sub==="notes"?"on":""}"><span class="tick"></span>Revision notes</a></li>
+            <li><a href="#${c.id}-rev" class="${route.sub==="rev"?"on":""}"><span class="tick"></span>10 revision questions</a></li>
+            <li><a href="#${c.id}-pyq" class="${route.sub==="pyq"?"on":""}"><span class="tick"></span>GATE PYQs</a></li></ul>`;
+        }
+      });
+      h += `</div>`;
+    });
+    rail.innerHTML = h;
+  }
+
+  /* ---------- home ---------- */
+  function renderHome(){
+    const last = S.last && modules[S.last.split("-")[0]] ? S.last : null;
+    const lastMod = last ? modules[last.split("-")[0]] : null;
+    let h = `<section class="hero">
+      <div class="eyebrow">2027 syllabus · Complete offline edition</div>
+      <h1>Small steps.<br><span class="hl">Deep understanding.</span></h1>
+      <p>A complete learning path for your first line of code and your first GATE problem. Read a short lesson, predict an outcome, explore a visual lab, then explain the answer in your own words. Your progress stays on this browser.</p>
+      <div class="row">${last ? `<a class="btn primary" href="#${last}">Continue: ${esc(lastMod.title)} →</a><a class="btn" href="#m00">Start from Module 00</a>` : `<a class="btn primary" href="#m00">Start Module 00 →</a>`}
+        <button class="btn" id="dlAll" type="button">⤓ Download all revision notes</button></div>
+    </section>
+    <div class="syllabus"><div class="eyebrow" style="color:var(--ink-3)">Official GATE CSE syllabus, Section 4</div>
+      <q>Programming in C. Recursion. Arrays, stacks, queues, linked lists, trees, binary search trees, binary heaps, graphs.</q>
+      <small>Verified against <a href="https://gate2027.iitm.ac.in/static/doc/GATE2027_Syllabus/CS_GATE2027_Syllabus.pdf" target="_blank" rel="noopener">GATE 2027, Section 4</a> on 23 October 2026. Foundations are prerequisites; complexity and traversals are bridges to Section 5. This is the Programming &amp; Data Structures course, not the entire CSE syllabus.</small></div>
+    <h2 style="font-size:22px;margin-bottom:12px">How each module works</h2>
+    <div class="how">
+      <div><span class="k">1</span><b>Lessons</b>Short pages that build from zero, with analogies and diagrams.</div>
+      <div><span class="k">2</span><b>Step-throughs</b>Step through guided C examples and manipulate data structures. Labs are models, not a general C compiler.</div>
+      <div><span class="k">3</span><b>Quick checks</b>One question inside each lesson so you know it stuck.</div>
+      <div><span class="k">4</span><b>Notes</b>Revision notes you can download as Markdown or a printable page.</div>
+      <div><span class="k">5</span><b>Practice → apply</b>Ten original revision questions per module; authentic PYQ practice with original papers and answer explanations. Foundation topics have no direct PYQ quota.</div>
+    </div>`;
+    Object.keys(PHASES).forEach(ph => {
+      h += `<div class="phase"><h2>${esc(ph)}</h2><span>${esc(PHASES[ph])}</span></div><div class="cards">`;
+      CURRICULUM.filter(c => c.phase === ph).forEach(c => {
+        const m = modules[c.id], p = modProgress(c.id);
+        h += `<a class="mcard${m?"":" soon"}" href="#${c.id}"><span class="num">MODULE ${c.id.slice(1)}</span><h3>${esc(c.title)}</h3><p>${esc(c.blurb)}</p>
+          ${m ? `<div class="bar"><i style="width:${p.pct}%"></i></div><div class="meta"><span>${m.lessons.length} lessons · ${(m.pyqs||[]).length} PYQs</span><span>${p.pct}%</span></div>` : `<div class="meta"><span>Being written</span></div>`}</a>`;
+      });
+      h += `</div>`;
+    });
+    $("#view").innerHTML = h;
+    if (window.CourseUI) CourseUI.home();
+    $("#dlAll").addEventListener("click", () => {
+      const parts = CURRICULUM.filter(c => modules[c.id]?.notes).map(c => modules[c.id].notes.trim());
+      download("Zero-to-GATE-PDS-all-notes.html", notesDoc("Zero to GATE: Programming & Data Structures (all notes)", parts.join("\n\n---\n\n")));
+    });
+    $("#topTitle").textContent = "Zero to GATE Programming";
+  }
+
+  /* ---------- module ---------- */
+  function notesDoc(title, mdText){
+    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
+<style>body{font-family:"Segoe UI",system-ui,sans-serif;max-width:820px;margin:32px auto;padding:0 20px;color:#151A2D;line-height:1.6;font-size:15.5px}
+h1{font-size:28px;border-bottom:3px solid #FFE36B;padding-bottom:6px}h2{font-size:22px;margin-top:1.8em;border-bottom:2px solid #FFE36B;padding-bottom:4px}h3{font-size:17px}
+code{font-family:Consolas,monospace;background:#EEF0F7;padding:.05em .35em;border-radius:4px;font-size:.9em}
+pre{background:#121830;color:#E6E9F5;padding:12px 16px;border-radius:8px;overflow-x:auto;font-family:Consolas,monospace;font-size:13.5px;line-height:1.5}
+pre .ln{display:block}.k{color:#8FB0FF}.t{color:#6FD6C4}.s{color:#F2C37E}.nm{color:#F79A72}.cm{color:#7480A8}.pp{color:#CBA8FF}.fn{color:#9DE58C}
+.term{background:#121830;color:#C9F1D2;padding:10px 14px;border-radius:8px;white-space:pre-wrap;font-family:Consolas,monospace}
+table{border-collapse:collapse;width:100%;margin:10px 0}th,td{border:1px solid #D8DDEB;padding:6px 10px;text-align:left;vertical-align:top}th{background:#EDF0F8}
+blockquote{margin:0;padding:8px 14px;border-left:4px solid #2E55E6;background:#E2E9FE}mark{background:#FFE36B}.lang{display:none}
+@media print{body{margin:0;max-width:none}h2{break-after:avoid}pre,table{break-inside:avoid}}</style></head><body>${md(mdText)}
+<p style="margin-top:40px;color:#7C84A3;font-size:13px">Zero to GATE: Programming &amp; Data Structures. Tip: open this file in a browser and use Print → Save as PDF for a PDF copy.</p></body></html>`;
+  }
+  function moduleHeader(m){
+    const p = modProgress(m.id);
+    return `<header class="mod-head">
+      <div class="eyebrow">Module ${m.id.slice(1)} · ${esc(m.phase)}</div>
+      <h1>${esc(m.title)}</h1>
+      <p class="sum">${esc(m.summary || m.blurb)}</p>
+      <div class="row">${m.level?`<span class="chip acc">${esc(m.level)}</span>`:""}<span class="chip">${m.lessons.length} lessons</span>${m.minutes?`<span class="chip">≈ ${Math.round(m.minutes/60*10)/10} hours</span>`:""}<span class="chip">${(m.revision||[]).length} revision Qs</span><span class="chip">${(m.pyqs||[]).length} GATE PYQs</span><span class="chip">${p.pct}% done</span></div>
+      ${m.objectives?`<details class="objectives"><summary>What you'll be able to do after this module</summary><ul>${m.objectives.map(o=>`<li>${richInline(o)}</li>`).join("")}</ul></details>`:""}
+    </header>`;
+  }
+  function subnav(m, sub){
+    return `<nav class="subnav" aria-label="Module sections">${m.lessons.map((l,i)=>`<a class="tab${sub===l.id?" on":""}${S.done[m.id+"-"+l.id]?" done":""}" href="#${m.id}-${l.id}"><span class="d"></span>${i+1}. ${esc(l.short||l.title)}</a>`).join("")}
+      <a class="tab sep special${sub==="notes"?" on":""}" href="#${m.id}-notes">📝 Notes</a>
+      <a class="tab special${sub==="rev"?" on":""}" href="#${m.id}-rev">Revise · ${(m.revision||[]).length}</a>
+      <a class="tab special${sub==="pyq"?" on":""}" href="#${m.id}-pyq">GATE PYQs · ${(m.pyqs||[]).length}</a></nav>`;
+  }
+  function hydrate(root, lesson, keyBase){
+    $$("pre.code", root).filter(pre => !pre.querySelector(".ln")).forEach(pre => {
+      const mark = (pre.dataset.mark||"").split(",").filter(Boolean).map(Number);
+      const tmp = document.createElement("div");
+      tmp.innerHTML = codeBlock(pre.textContent, {mark, nolines: pre.classList.contains("nolines"), lang: pre.dataset.lang});
+      pre.replaceWith(tmp.firstElementChild);
+    });
+    $$("table", root).forEach(t => { if (!t.parentElement.classList.contains("tablewrap")) { const w = document.createElement("div"); w.className = "tablewrap"; t.replaceWith(w); w.appendChild(t); } });
+    $$("[data-widget]", root).forEach(el => {
+      const name = el.dataset.widget, fn = widgets[name];
+      const cfg = el.dataset.ref ? (lesson.data||{})[el.dataset.ref] : (el.dataset.config ? JSON.parse(el.dataset.config) : {});
+      if (!fn) { el.innerHTML = `<div class="empty-state">Missing widget “${esc(name)}”</div>`; console.warn("[GATE] missing widget", name); return; }
+      try { fn(el, cfg || {}, GATE); } catch(err) { console.error("[GATE] widget failed", name, err); el.innerHTML = `<div class="empty-state">This visual failed to load.</div>`; }
+    });
+    $$("[data-check]", root).forEach(el => {
+      const i = +el.dataset.check, q = (lesson.checks||[])[i];
+      if (!q) { console.warn("[GATE] missing check", keyBase, i); return; }
+      el.classList.add("inline-check"); el.innerHTML = "";
+      el.appendChild(questionEl(q, `${keyBase}-chk-${i}`, null));
+    });
+  }
+  function renderModule(route){
+    const base = CURRICULUM.find(c => c.id === route.id);
+    const m = modules[route.id];
+    $("#topTitle").textContent = base ? `${route.id.slice(1)} · ${base.title}` : "Zero to GATE";
+    if (!m) {
+      $("#view").innerHTML = `<header class="mod-head"><div class="eyebrow">Module ${route.id.slice(1)}</div><h1>${esc(base?base.title:"Unknown module")}</h1><p class="sum">${esc(base?base.blurb:"")}</p></header><div class="empty-state">This module is still being written. Start with the modules that are ready.</div>`;
+      return;
+    }
+    let sub = route.sub;
+    if (!sub) sub = m.lessons[0].id;
+    S.last = `${m.id}-${sub}`; save();
+    let h = moduleHeader(m) + subnav(m, sub) + `<article id="pane"></article>`;
+    $("#view").innerHTML = h;
+    const pane = $("#pane");
+    const li = m.lessons.findIndex(l => l.id === sub);
+    if (li >= 0) {
+      const l = m.lessons[li], key = `${m.id}-${l.id}`;
+      pane.innerHTML = `<div class="lesson-head"><div class="eyebrow">Lesson ${li+1} of ${m.lessons.length}${l.minutes?` · ${l.minutes} min`:""}</div><h2>${esc(l.title)}</h2></div><div class="prose">${l.html}</div>
+        <div class="lesson-foot">${li>0?`<a class="btn" href="#${m.id}-${m.lessons[li-1].id}">← ${esc(m.lessons[li-1].short||m.lessons[li-1].title)}</a>`:"<span></span>"}
+        <button class="btn primary" id="doneBtn" type="button">${S.done[key]?"✓ Completed · next →":"Mark complete · next →"}</button></div>`;
+      hydrate(pane, l, key);
+      $("#doneBtn").addEventListener("click", () => {
+        S.done[key] = true; save();
+        go(li < m.lessons.length-1 ? `${m.id}-${m.lessons[li+1].id}` : `${m.id}-notes`);
+      });
+    } else if (sub === "notes") {
+      pane.innerHTML = `<div class="lesson-head"><div class="eyebrow">Revision notes</div><h2>${esc(m.title)}: everything on one page</h2></div>
+        <div class="notes-actions"><button class="btn primary" id="dlMd" type="button">⤓ Download notes (.md)</button><button class="btn" id="dlHtml" type="button">⤓ Printable notes (.html)</button><span class="muted" style="font-size:14px">Open the .html in a browser and Print → Save as PDF for a PDF.</span></div>
+        <div class="notes prose">${md(m.notes||"_Notes coming soon._")}</div>
+        <div class="lesson-foot"><span></span><a class="btn primary" href="#${m.id}-rev">Revise with 10 questions →</a></div>`;
+      const fname = `Module-${m.id.slice(1)}-${m.title.replace(/[^A-Za-z0-9]+/g,"-").replace(/-+$/,"")}-notes`;
+      $("#dlMd").addEventListener("click", () => download(fname + ".md", m.notes||""));
+      $("#dlHtml").addEventListener("click", () => download(fname + ".html", notesDoc(`Module ${m.id.slice(1)} · ${m.title}: revision notes`, m.notes||"")));
+    } else if (sub === "rev" || sub === "pyq") {
+      const isP = sub === "pyq", list = (isP ? m.pyqs : m.revision) || [], kind = isP ? "pyq" : "rev";
+      pane.innerHTML = `<div class="lesson-head"><div class="eyebrow">${isP?"GATE previous-year questions":"Revision questions"}</div><h2>${isP?"Real GATE questions on this module":"Ten questions to lock it in"}</h2>
+        ${isP ? (m.pyqNote ? `<p class="muted" style="margin:0">${richInline(m.pyqNote)}</p>` : `<p class="muted" style="margin:0">Each one is from an actual GATE CSE paper; the chip shows the year. Answer first, then read the solution even when you get it right. The method matters more than the answer.</p>`) : `<p class="muted" style="margin:0">Mixed difficulty, from basics to GATE level. Each solution explains the reasoning.</p>`}</div>
+        <div class="qset-head"><div class="score"><span><b id="sc">0</b> / ${list.length} correct</span><span id="att"></span></div><button class="btn small" id="resetQ" type="button">↺ Reset all</button></div>
+        <div class="qlist" id="qlist"></div>
+        <div class="lesson-foot">${isP?`<a class="btn" href="#${m.id}-rev">← Revision questions</a>`:`<a class="btn" href="#${m.id}-notes">← Notes</a>`}
+        ${isP ? (() => { const ix = CURRICULUM.findIndex(c=>c.id===m.id); const nx = CURRICULUM[ix+1]; return nx ? `<a class="btn primary" href="#${nx.id}">Next module: ${esc(nx.title)} →</a>` : `<a class="btn primary" href="#home">Back to course map</a>`; })() : `<a class="btn primary" href="#${m.id}-pyq">GATE PYQs →</a>`}</div>`;
+      const ql = $("#qlist");
+      const upd = () => {
+        const ks = list.map((_,i)=>`${m.id}-${kind}-${i}`);
+        $("#sc").textContent = ks.filter(k => S.ans[k]?.ok).length;
+        $("#att").textContent = `${ks.filter(k => S.ans[k]).length} attempted`;
+        renderRail(route);
+        if(window.CourseUI) CourseUI.railTools(route);
+      };
+      if (!list.length) ql.innerHTML = `<div class="empty-state">${isP ? "There are no GATE questions on this foundation material. GATE previous-year questions start in Module 01." : "Questions coming soon."}</div>`;
+      list.forEach((q,i) => ql.appendChild(questionEl(q, `${m.id}-${kind}-${i}`, i+1, upd)));
+      $("#resetQ").addEventListener("click", () => { list.forEach((_,i)=>delete S.ans[`${m.id}-${kind}-${i}`]); save(); render(); });
+      upd();
+    } else {
+      pane.innerHTML = `<div class="empty-state">That section doesn't exist. <a href="#${m.id}">Go to the first lesson</a>.</div>`;
+    }
+  }
+
+  function render(){
+    const route = parse();
+    renderRail(route);
+    if (route.view === "home") renderHome(); else renderModule(route);
+    $("#rail").classList.remove("open"); $(".scrim")?.remove();
+    const tab = $(".subnav .tab.on"); if (tab) tab.scrollIntoView({block:"nearest", inline:"center"});
+    window.scrollTo(0, 0);
+    if (window.CourseUI) CourseUI.afterRender(route);
+  }
+  function boot(){
+    window.addEventListener("hashchange", render);
+    $("#menuBtn").addEventListener("click", () => {
+      const r = $("#rail"); r.classList.add("open");
+      const sc = document.createElement("div"); sc.className = "scrim"; sc.addEventListener("click", () => { r.classList.remove("open"); sc.remove(); });
+      document.body.appendChild(sc);
+    });
+    render();
+    getDownloads();
+  }
+
+  return {modules, CURRICULUM, getState:()=>S, setState:s=>{S=s;save();render();}, save, render, download, notesDoc, checkAnswer, module, widget, boot, esc, hl, md, inline, codeBlock, arrayHTML, stackHTML, listHTML, svgTree, svgGraph, stepper, frames, trace, questionEl, toast, $, $$};
+})();
+</script>
+<script src="modules/m00.js" charset="utf-8"></script>
+<script src="modules/course.js"></script>
+<script src="modules/structures.js"></script>
+<script src="modules/advanced.js"></script>
+<script src="modules/bridges.js"></script>
+<script src="labs.js"></script>
+<script src="pyqs.js"></script>
+<script src="study.js"></script>
+<script>GATE.boot();</script>
+
+</body></html>
+</body></html>

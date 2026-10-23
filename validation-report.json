@@ -1,0 +1,99 @@
+{
+  "modules": 12,
+  "lessons": 68,
+  "quickChecks": 68,
+  "revisionQuestions": 120,
+  "pyqPlacements": 110,
+  "uniquePyqs": 74,
+  "officialKeyQuestions": 72,
+  "independentlyCheckedQuestions": 2,
+  "registeredLabs": 24,
+  "modelChecks": "passed",
+  "registrationWarnings": [],
+  "moduleCounts": [
+    {
+      "id": "m00",
+      "title": "How Computers & Code Work",
+      "lessons": 7,
+      "revision": 10,
+      "pyqs": 0
+    },
+    {
+      "id": "m01",
+      "title": "C Building Blocks",
+      "lessons": 6,
+      "revision": 10,
+      "pyqs": 10
+    },
+    {
+      "id": "m02",
+      "title": "Decisions & Loops",
+      "lessons": 5,
+      "revision": 10,
+      "pyqs": 10
+    },
+    {
+      "id": "m03",
+      "title": "Functions, Scope & Storage",
+      "lessons": 5,
+      "revision": 10,
+      "pyqs": 10
+    },
+    {
+      "id": "m04",
+      "title": "Pointers, Arrays & Strings",
+      "lessons": 7,
+      "revision": 10,
+      "pyqs": 10
+    },
+    {
+      "id": "m05",
+      "title": "Recursion",
+      "lessons": 6,
+      "revision": 10,
+      "pyqs": 10
+    },
+    {
+      "id": "m06",
+      "title": "Arrays & Complexity",
+      "lessons": 5,
+      "revision": 10,
+      "pyqs": 10
+    },
+    {
+      "id": "m07",
+      "title": "Stacks & Queues",
+      "lessons": 5,
+      "revision": 10,
+      "pyqs": 10
+    },
+    {
+      "id": "m08",
+      "title": "Linked Lists",
+      "lessons": 5,
+      "revision": 10,
+      "pyqs": 10
+    },
+    {
+      "id": "m09",
+      "title": "Trees & Binary Search Trees",
+      "lessons": 5,
+      "revision": 10,
+      "pyqs": 10
+    },
+    {
+      "id": "m10",
+      "title": "Binary Heaps",
+      "lessons": 6,
+      "revision": 10,
+      "pyqs": 10
+    },
+    {
+      "id": "m11",
+      "title": "Graphs",
+      "lessons": 6,
+      "revision": 10,
+      "pyqs": 10
+    }
+  ]
+}

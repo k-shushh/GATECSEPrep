@@ -1,0 +1,12 @@
+ZERO TO GATE — OFFLINE EDITION 2
+
+1. Extract the entire ZIP.
+2. Open index.html in a modern browser.
+3. Begin with Module 00.
+
+Read README.html for the curriculum, notes, source policy and progress backups.
+
+68 lessons | 120 revision questions | 110 PYQ placements from 74 distinct official questions.
+
+Keep the modules, papers and revision-notes folders alongside index.html.
+The original project was not modified.
